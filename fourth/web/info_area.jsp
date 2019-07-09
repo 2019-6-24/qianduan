@@ -8,6 +8,83 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+
+    <script type="text/javascript">
+        //在jsp加载时调用函数
+        if(window.addEventListener){
+            window.addEventListener("load",getArea,false);
+        }
+        else{
+            window.attachEvent("onload",getArea());
+        }
+
+        function getArea() {
+
+            var area='<%=request.getParameter("area")%>';
+            var city='<%=request.getParameter("city")%>';
+            //TODO test
+            alert("info_area界面"+city+area);
+            document.getElementById("area_n").innerHTML=area.toString();
+            $.ajax({
+                dataType: "json",
+                type: "POST",
+                data: {city:city,area:area},
+                url: "http://localhost:8080/areaComCharts",
+                success: function(data){
+                    var month=data.month;
+                    var price=data.aprice_month;
+                    //TODO test
+                    //alert(data.toString());
+                    document.getElementById("text").innerHTML=month.toString();
+                    document.getElementById("price").innerHTML=price.toString();
+                },
+                error: function () {
+                    alert("请求出错");
+                }
+            });
+
+        }
+
+        function selFun() {
+            var city = document.getElementById("s_city");
+            var area = document.getElementById("s_county");
+            if (city.value == "城市" && area.value == "区域") {
+                alert("请至少选择一项城市或区域");
+            } else {
+                if (area.value == "区域") {//选择了城市
+                    //TODO test
+                    alert("选择了城市，区域为默认"+city.value);
+                    window.location.href='/info_city.jsp?target='+city.value;
+                    /*****
+                     $.ajax({
+                        dataType: "json",
+                        type: "POST",
+                        data: {aimCity: city},
+                        url: "http://localhost:8080/chartsCity",
+                        success: function (data) {
+                            var result = data.message;
+                            //TODO test
+                            //alert(result.toString());
+                            document.getElementById("s_city").innerHTML = city.toString();
+                            document.getElementById("price").innerHTML = result.toString();
+                        },
+                        error: function () {
+                            alert("请求出错");
+                        }
+                    });
+                     *******/
+
+                } else {
+                    //选择了区域
+                    //TODO test
+                    //alert("选择了城市和区域"+city.value+area.value);
+                    window.location.href='/info_area.jsp?area='+area.value+'&city='+city.value;
+                }
+
+            }
+        }
+    </script>
+
     <title>区域房价</title>
     <link rel="stylesheet" href="css/info_area.css" media="all">
     <script type="text/javascript" src="Jquery/jquery-3.3.1.min.js"></script>
@@ -31,14 +108,14 @@
 <!--大框框-->
 <div class="big">
     <!--区域-->
-    <div class="city_n" id="city_n">
-        江汉区
+    <div class="city_n" id="area_n">
+        <!--江汉区-->
     </div>
     <div class="city_p text" id="text">
-        7月平均房价：
+        <!--7月平均房价：-->
     </div>
     <div class="city_p price" id="price">
-        17266
+        <!--17266-->
     </div>
     <div class="city_p unit">
         元/平
@@ -59,7 +136,7 @@
             Area.
         </div>
         <div class="top select">
-            <button class="btn" type="submit"><span >SELECT</span></button>
+            <button class="btn" type="button" onclick="selFun()"><span >SELECT</span></button>
         </div>
 
         <div class="info" style="margin-top: 0px;position: absolute;">
@@ -81,7 +158,7 @@
                     Gid('s_city').value + " - 县/区" +
                     Gid('s_county').value + "</h3>"
             }
-            Gid('s_county').setAttribute('onchange','showArea()');
+            //Gid('s_county').setAttribute('onchange','showArea()');
         </script>
     </div>
 
@@ -142,6 +219,7 @@
 
 <!--柱状图-->
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<!--
 <div id="bar" style="width: 600px;height:400px;"></div>
 <script src="Jquery/vintage.js"></script>
 <script>
@@ -184,48 +262,74 @@
         });
     });
 </script>
-
+-->
 
 <!--折线图-->
 <div id="line" style="width: 600px;height:400px;"></div>
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
-    var myChart = echarts.init(document.getElementById('line'),'vintage');
+    function loadAreaColumn() {
+        var myChart = echarts.init(document.getElementById('line'),'vintage');
 
-    // 显示标题，图例和空的坐标轴
-    myChart.setOption({
-        title: {
-            text: '城市平均房价'
-        },
-        xAxis: {
-            type: 'category',
-            data: []
-        },
-        yAxis: {
-            type: 'value'
-        },
-        series: [{
-            data: [],
-            type: 'line'
-        }]
-    });
-
-    myChart.showLoading();
-    // 异步加载数据（修改data.json）
-    $.get('data.json').done(function (data) {
-        myChart.hideLoading();
-        // 填入数据
+        // 显示标题，图例和空的坐标轴
         myChart.setOption({
+            title: {
+                text: '区域平均房价'
+            },
             xAxis: {
-                data: data.categories
+                type: 'category',
+                data: []
+            },
+            yAxis: {
+                type: 'value'
             },
             series: [{
-                // 根据名字对应到相应的系列
-                name: '房价',
-                data: data.data
+                data: [],
+                type: 'line'
             }]
         });
-    });
+
+        myChart.showLoading();
+        // 异步加载数据（修改data.json）
+        var names = [];    //类别数组（实际用来盛放X轴坐标值）
+        var nums = [];    //销量数组（实际用来盛放Y坐标值）
+
+        var tarCity='<%=request.getParameter("city")%>';
+        var tarArea='<%=request.getParameter("area")%>';
+        //TODO test
+        alert("tarCity,tarArea"+tarCity+tarArea);
+        $.ajax({
+            type: 'get',
+            data:{tarCity:tarCity,tarArea:tarArea},
+            url: 'http://localhost:8080/areaLineCharts',//请求数据的地址
+            dataType: "json",        //返回数据形式为json
+            success: function (result) {
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+                $.each(result.list, function (index, item) {
+                    names.push(item.time);    //挨个取出类别并填入类别数组
+                    nums.push(item.price);    //挨个取出销量并填入销量数组
+                });
+                myChart.hideLoading();    //隐藏加载动画
+                myChart.setOption({        //加载数据图表
+                    xAxis: {
+                        data: names
+                    },
+                    series: [{
+                        // 根据名字对应到相应的系列
+                        name: '房价',  //显示在上部的标题
+                        data: nums
+                    }]
+                });
+            },
+            error: function (errorMsg) {
+                //请求失败时执行该函数
+                alert("图表请求数据失败!");
+                myChart.hideLoading();
+            }
+        });
+    }
+
+    loadAreaColumn();
 </script>
 
 

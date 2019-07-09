@@ -61,6 +61,33 @@
         <url-pattern>/cityAreaCharts</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>areaComCharts</servlet-name>
+        <servlet-class>com.fourth.controller.areaComCharts</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>areaComCharts</servlet-name>
+        <url-pattern>/areaComCharts</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>areaLineCharts</servlet-name>
+        <servlet-class>com.fourth.controller.areaLineCharts</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>areaLineCharts</servlet-name>
+        <url-pattern>/areaLineCharts</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>calcuPage</servlet-name>
+        <servlet-class>com.fourth.controller.calcuPage</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>calcuPage</servlet-name>
+        <url-pattern>/calcuPage</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>

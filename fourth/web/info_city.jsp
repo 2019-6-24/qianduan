@@ -12,14 +12,20 @@
     <script type="text/javascript">
         //在jsp加载时调用函数
 
+
         if(window.addEventListener){
             //window.addEventListener("load",GetQueryString,false);
             window.addEventListener("load",getCity,false);
+            //window.addEventListener("load",loadLineColumn,false);
+            //window.addEventListener("load",loadAreaColumn,false);
         }
         else{
             //window.attachEvent("onload",GetQueryString);
             window.attachEvent("onload",getCity());
+            //window.attachEvent("onload",loadLineColumn());
+            //window.attachEvent("onload",loadAreaColumn());
         }
+
 
 
         /***
@@ -45,10 +51,12 @@
                 data: {aimCity:target},
                 url: "http://localhost:8080/chartsCity",
                 success: function(data){
-                    var result=data.message;
+                    var month=data.month;
+                    var price=data.price;
                     //TODO test
                     //alert(result.toString());
-                    document.getElementById("price").innerHTML=result.toString();
+                    document.getElementById("text").innerHTML=month.toString();
+                    document.getElementById("price").innerHTML=price.toString();
                 },
                 error: function () {
                     alert("请求出错");
@@ -57,6 +65,46 @@
         }
     </script>
 
+    <script type="text/javascript">
+        function selFun() {
+            var city = document.getElementById("s_city");
+            var area = document.getElementById("s_county");
+            if (city.value == "城市" && area.value == "区域") {
+                alert("请至少选择一项城市或区域");
+            } else {
+                if (area.value == "区域") {//选择了城市
+                    //TODO test
+                    alert("选择了城市，区域为默认"+city.value);
+                    window.location.href='/info_city.jsp?target='+city.value;
+                    /*****
+                    $.ajax({
+                        dataType: "json",
+                        type: "POST",
+                        data: {aimCity: city},
+                        url: "http://localhost:8080/chartsCity",
+                        success: function (data) {
+                            var result = data.message;
+                            //TODO test
+                            //alert(result.toString());
+                            document.getElementById("s_city").innerHTML = city.toString();
+                            document.getElementById("price").innerHTML = result.toString();
+                        },
+                        error: function () {
+                            alert("请求出错");
+                        }
+                    });
+                     *******/
+
+                } else {
+                    //选择了区域
+                    //TODO test
+                    //alert("选择了城市和区域"+city.value+area.value);
+                    window.location.href='/info_area.jsp?area='+area.value+'&city='+city.value;
+                }
+
+            }
+        }
+    </script>
 
 
     <title>城市房价</title>
@@ -88,7 +136,7 @@
     </div>
     <!--时间:第一季度平均房价-->
     <div class="city_p text" id="text">
-        2019年第二季度
+        <!--2019年第二季度-->
     </div>
     <!--平均房价-->
     <div class="city_p price" id="price">
@@ -113,7 +161,7 @@
             Area.
         </div>
         <div class="top select">
-            <a href="info_area.jsp"><button class="btn" type="submit"><span >SELECT</span></button></a>
+            <button class="btn" type="button" onclick="selFun()"><span >SELECT</span></button></a>
         </div>
 
         <div class="info" style="margin-top: 0px;position: absolute;">
@@ -128,6 +176,7 @@
             <script type="text/javascript">_init_area();</script>
 
         </div>
+        <!--
         <script type="text/javascript">
             var Gid  = document.getElementById ;
             var showArea = function(){
@@ -137,6 +186,7 @@
             }
             Gid('s_county').setAttribute('onchange','showArea()');
         </script>
+        -->
     </div>
 
 
@@ -200,7 +250,7 @@
 <script src="Jquery/vintage.js"></script>
 
 <script>
-    function loadOneColumn() {
+    function loadLineColumn() {
         var myChart = echarts.init(document.getElementById('bar'),'vintage');
         // 显示标题，图例和空的坐标轴
         myChart.setOption({
@@ -240,6 +290,8 @@
         var names = [];    //类别数组（实际用来盛放X轴坐标值）
         var nums = [];    //销量数组（实际用来盛放Y坐标值）
         var tar='<%=request.getParameter("target")%>';
+        //TODO test
+        alert("绘图城市参数 "+tar);
         $.ajax({
             type: 'get',
             data:{tar:tar},
@@ -270,12 +322,12 @@
             }
         });
     };
-    loadOneColumn();
+    loadLineColumn();
 </script>
 <!--折线图-->
 <div id="line" style="width: 1400px;height:400px;margin-left: 50px;"></div>
 <script type="text/javascript">
-    function loadOneColumn() {
+    function loadAreaColumn() {
         var myChart = echarts.init(document.getElementById('line'),'vintage');
         // 显示标题，图例和空的坐标轴
         myChart.setOption({
@@ -346,7 +398,7 @@
             }
         });
     };
-    loadOneColumn();
+    loadAreaColumn();
 
 </script>
 

@@ -79,18 +79,17 @@ public class Check {
 
     }
 
-    public static int cpriceMonth(String city)
+    public static JSONObject cpriceMonth(String city)
     {
         System.out.println(city);
         Connection conn = DB.getConn();
-        String sql = "select cityprice from city_use where cityname='" + city + "';";
+        String sql = "select month,cprice_month from price_month where cityname='" + city + "';";
         System.out.println(sql);
         //String sql = "select cprice_month from cprice_month";
         Statement stmt = DB.getStatement(conn);
         ResultSet rs = DB.getResultset(stmt, sql);
 
-        int price=-1;
-
+        JSONObject json=new JSONObject();
 
         try {
             /****
@@ -104,6 +103,8 @@ public class Check {
             }
              ***/
 
+
+
             if (rs.wasNull()) {
 
             } else {
@@ -113,13 +114,12 @@ public class Check {
                 //checkCity.setNeibor(rs.getString("neibor"));
 
 
-                while (rs.next())
+                if(rs.next())
                 {
-                    System.out.println(rs.getString("cityprice"));
                     System.out.println("进入赋值语句");
-                    price=rs.getInt("cityprice");
+                    json.put("month",rs.getString("month"));
+                    json.put("price",rs.getInt("cprice_month"));
                 }
-                System.out.println(price+"else分支");
 
             }
         } catch (SQLException e) {
@@ -128,8 +128,8 @@ public class Check {
             DB.close(rs);
             DB.close(stmt);
             DB.close(conn);
-            System.out.println(price+"return");
-            return price;
+
+            return json;
         }
 
     }
@@ -210,6 +210,162 @@ public class Check {
                 }
 
                 json.put("list",array);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DB.close(rs);
+            DB.close(stmt);
+            DB.close(conn);
+            return json;
+        }
+
+    }
+
+    public static JSONObject accJson(String city,String area)
+    {
+        System.out.println("accJson"+city);
+        System.out.println("accJson"+area);
+        Connection conn = DB.getConn();
+        String sql = " select month,aprice_month from price_month where cityname='" + city + "' and areaname='" + area + "';";
+        System.out.println(sql);
+        Statement stmt = DB.getStatement(conn);
+        ResultSet rs = DB.getResultset(stmt, sql);
+
+        JSONObject json=new JSONObject();
+
+        try {
+            if (rs.wasNull()) {
+
+            } else {
+                System.out.println("进入accJson else分支");
+
+                if(rs.next())
+                {
+                    System.out.println("accJson给json类型赋值");
+                    json.put("month",rs.getString("month"));
+                    json.put("aprice_month",rs.getString("aprice_month"));
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DB.close(rs);
+            DB.close(stmt);
+            DB.close(conn);
+            return json;
+        }
+
+    }
+
+    public static int calPage(String sql)
+    {
+        System.out.println("Check.calPage"+sql);
+        Connection conn = DB.getConn();
+        Statement stmt = DB.getStatement(conn);
+        ResultSet rs = DB.getResultset(stmt, sql);
+
+        int i=0;
+        try {
+            if (rs.wasNull()) {
+
+            } else {
+                System.out.println("进入calcuPage else分支");
+                while (rs.next())
+                {
+                    i++;
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DB.close(rs);
+            DB.close(stmt);
+            DB.close(conn);
+            return i;
+        }
+
+    }
+
+    public static JSONObject searPage(String sql)
+    {
+        System.out.println("Check.searPage"+sql);
+        Connection conn = DB.getConn();
+        Statement stmt = DB.getStatement(conn);
+        ResultSet rs = DB.getResultset(stmt, sql);
+
+        JSONObject json=new JSONObject();
+        JSONArray array=new JSONArray();
+
+        try {
+            if (rs.wasNull()) {
+
+            } else {
+                System.out.println("进入searPage else分支");
+
+                while (rs.next())
+                {
+                    JSONObject temp=new JSONObject();
+                    System.out.println("searPage给json类型赋值");
+
+                    temp.put("name",rs.getString("wuhan_community.name"));
+                    temp.put("type",rs.getString("wuhan_community.type"));
+                    temp.put("price",rs.getString("wuhan_community.price"));
+                    temp.put("date",rs.getString("wuhan_community.date"));
+                    temp.put("square",rs.getString("wuhan_community.square"));
+                    temp.put("total_price",rs.getString("wuhan_community.total_price"));
+                    temp.put("info",rs.getString("wuhan_community.info"));
+
+                    array.add(temp);
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            json.put("list",array);
+            DB.close(rs);
+            DB.close(stmt);
+            DB.close(conn);
+            return json;
+        }
+
+    }
+
+    public static JSONObject alcJson(String sql)
+    {
+        Connection conn = DB.getConn();
+        Statement stmt = DB.getStatement(conn);
+        ResultSet rs = DB.getResultset(stmt, sql);
+
+        JSONObject json=new JSONObject();
+        JSONArray array=new JSONArray();
+
+        try {
+            if (rs.wasNull()) {
+
+            } else {
+                System.out.println("进入else分支");
+
+                int i=0;
+
+                while (rs.next())
+                {
+                    JSONObject temp=new JSONObject();
+                    temp.put("time",rs.getString("month"));
+                    temp.put("price",rs.getString("aprice_month"));
+                    array.add(i,temp);
+                    i++;
+                }
+                JSONArray t=new JSONArray();
+                for(int j=0;j<array.size();j++)
+                {
+                    JSONObject n=array.optJSONObject(array.size()-j-1);
+                    t.add(n);
+                }
+                json.put("list",t);
             }
         } catch (SQLException e) {
             e.printStackTrace();

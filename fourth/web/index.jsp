@@ -58,9 +58,48 @@
     function ajaxHouse() {
         var tarProvince=document.getElementById("s_province");
         var tarCity=document.getElementById("s_city");
-        var tarNeibor=document.getElementById("s_county");
+        var tarArea=document.getElementById("s_county");
         var keyWords=document.getElementById("keyWords");
         //alert(tarProvince.value+tarCity.value+tarNeibor.value+keyWords.value+keyWords+keyWords.toString()+keyWords.toString().length);
+        if(tarCity.value!="城市")
+        {//用户已经选择到了城市
+            //TODO test
+            alert("index搜索房源准备进入ajax语句"+tarProvince.value+tarCity.value+tarArea.value+keyWords.value);
+            $.ajax({
+            dataType: "json",
+            type: "POST",
+            data: {province:tarProvince.value,
+                city:tarCity.value,
+                area:tarArea.value,
+                keywords:keyWords.value},
+            url: "http://localhost:8080/calcuPage",
+            success: function(data){
+                //TODO test
+                //alert(data);
+                if(data=="0")
+                {
+                    alert("未能匹配到对应房源！");
+                }
+                else
+                {
+                    window.location.href='/info_nei.jsp?province='+tarProvince.value+
+                        '&city='+tarCity.value+'&area='+tarArea.value+
+                        '&keywords='+keyWords.value+'&pageNum='+data;
+                }
+                //alert("成功匹配");
+                //跳转城市图表页面，传参
+                //window.location.href='/info_city.jsp?target='+chartsCity.value;
+            },
+                error: function () {
+                    alert("请求出错");
+                }
+
+            });
+        }else{
+            //用户没有选择到城市
+            alert("请选择城市");
+        }
+        /*****
         if(!(tarNeibor.value=="区域"&&tarCity.value=="城市"&&tarProvince.value=="省份"&&keyWords.value==""))
         {
             //非空时向searchPage发送ajax请求并传参，在success生成列表
@@ -89,7 +128,7 @@
         {
             alert("请至少选择一项");
         }
-
+         ******/
     }
   </script>
 
@@ -223,7 +262,7 @@
                     Gid('s_city').value + " - 县/区" +
                     Gid('s_county').value + "</h3>"
             }
-            Gid('s_county').setAttribute('onchange','showArea()');
+            //Gid('s_county').setAttribute('onchange','showArea()');
         </script>
       </div>
 
